@@ -1,0 +1,220 @@
+{
+  "metadata" : {
+    "name" : "6-deeplearning4j",
+    "user_save_timestamp" : "1970-01-01T03:00:00.000Z",
+    "auto_save_timestamp" : "1970-01-01T03:00:00.000Z",
+    "language_info" : {
+      "name" : "scala",
+      "file_extension" : "scala",
+      "codemirror_mode" : "text/x-scala"
+    },
+    "trusted" : true,
+    "customLocalRepo" : null,
+    "customRepos" : null,
+    "customDeps" : [ "org.deeplearning4j %% dl4j-spark % 0.7.2", "org.nd4j % nd4j-native-platform % 0.7.2" ],
+    "customImports" : null,
+    "customArgs" : null,
+    "customSparkConf" : null
+  },
+  "cells" : [ {
+    "metadata" : {
+      "id" : "283230EA41CE40448B98AD16311704F6"
+    },
+    "cell_type" : "markdown",
+    "source" : "# Data Preparation\n## Loading the data"
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "050EB297297446C18AD6BFE0720CD029"
+    },
+    "cell_type" : "code",
+    "source" : "// Spark SQL\nimport org.apache.spark.sql.{SparkSession, Column}\nimport org.apache.spark.sql.functions._\nimport org.apache.spark.sql.types.{StructField, IntegerType, StringType}\n\n// Spark ML\nimport org.apache.spark.ml.linalg.{Vectors, DenseVector}\nimport org.apache.spark.ml.feature.{StringIndexer, StandardScaler}\nimport org.apache.spark.ml.evaluation.RegressionEvaluator\nimport org.apache.spark.ml.regression.{LinearRegression, DecisionTreeRegressor}\nimport org.apache.spark.ml.Transformer\n\n// Loading the data\nval spark = SparkSession\n  .builder()\n  .appName(\"Spark Example\")\n  .getOrCreate()\n\nimport spark.implicits._\n\nval df = spark.read.option(\"header\", true).option(\"inferSchema\", true).csv(\"data/train.csv\")\n\n// Setting up some variables\nval labelField = \"SalePrice\"\nval scalarFields: Seq[String] = df.schema.fields.collect\n  { case StructField(name, IntegerType, _, _) if name != labelField && name != \"Id\" => name }\nval stringFields: Seq[String] = df.schema.fields.collect { case StructField(name, StringType, _, _) => name }",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "import org.apache.spark.sql.{SparkSession, Column}\nimport org.apache.spark.sql.functions._\nimport org.apache.spark.sql.types.{StructField, IntegerType, StringType}\nimport org.apache.spark.ml.linalg.{Vectors, DenseVector}\nimport org.apache.spark.ml.feature.{StringIndexer, StandardScaler}\nimport org.apache.spark.ml.evaluation.RegressionEvaluator\nimport org.apache.spark.ml.regression.{LinearRegression, DecisionTreeRegressor}\nimport org.apache.spark.ml.Transformer\nspark: org.apache.spark.sql.SparkSession = org.apache.spark.sql.SparkSession@77e5a384\nimport spark.implicits._\ndf: org.apache.spark.sql.DataFrame = [Id: int, MSSubClass: int ... 79 more fields]\nlabelField: String = SalePrice\nscalarFields: Seq[String] = ArraySeq(MSSubClass, LotArea, OverallQual, OverallCond, YearBuilt, YearRemodAdd..."
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/html" : ""
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 1,
+      "time" : "Took: 3 seconds 363 milliseconds, at 2017-6-21 17:53"
+    } ]
+  }, {
+    "metadata" : {
+      "id" : "CD06B220AA1A46188B3C8D306743A5A3"
+    },
+    "cell_type" : "markdown",
+    "source" : "## Extracting scalar and categorical features into vectors"
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "E5AD4D787C7D4EE28AE58BBB78307E03"
+    },
+    "cell_type" : "code",
+    "source" : "val dfWithCategories = stringFields.foldLeft(df) { (dfTemp, col) =>\n  val indexer = new StringIndexer()\n    .setInputCol(col)\n    .setOutputCol(s\"${col}_id\")\n\n  indexer.fit(dfTemp).transform(dfTemp)\n}\n\nval data = dfWithCategories.map { row =>\n  (\n    Vectors.dense(scalarFields.map(name => row.getAs[Int](name).toDouble).toArray)\n  , Vectors.dense(stringFields.map(name => row.getAs[Double](s\"${name}_id\")).toArray)\n  , row.getInt(row.fieldIndex(labelField)))\n}.toDF(\"features_scalar\", \"features_categorical\", \"label\")\n\ndata.show()",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "+--------------------+--------------------+------+\n|     features_scalar|features_categorical| label|\n+--------------------+--------------------+------+\n|[60.0,8450.0,7.0,...|[0.0,6.0,0.0,0.0,...|208500|\n|[20.0,9600.0,6.0,...|[0.0,3.0,0.0,0.0,...|181500|\n|[60.0,11250.0,7.0...|[0.0,11.0,0.0,0.0...|223500|\n|[70.0,9550.0,7.0,...|[0.0,1.0,0.0,0.0,...|140000|\n|[60.0,14260.0,8.0...|[0.0,38.0,0.0,0.0...|250000|\n|[50.0,14115.0,5.0...|[0.0,7.0,0.0,0.0,...|143000|\n|[20.0,10084.0,8.0...|[0.0,5.0,0.0,0.0,...|307000|\n|[60.0,10382.0,7.0...|[0.0,0.0,0.0,0.0,...|200000|\n|[50.0,6120.0,7.0,...|[1.0,21.0,0.0,0.0...|129900|\n|[190.0,7420.0,5.0...|[0.0,4.0,0.0,0.0,...|118000|\n|[20.0,11200.0,5.0...|[0.0,2.0,0.0,0.0,...|129500|\n|[60.0,11924.0,9.0...|[0.0,7.0,0.0,0.0,...|345000|\n|[20.0,12968.0,5.0...|[0.0,0.0,0.0,0.0,...|144000|\n|[20.0,10652.0,7.0...|[0.0,61.0,0.0,0.0...|279500|\n|[20.0,10920.0,6.0...|[0.0,0.0,0.0,0.0,...|157000|\n|[45.0,6120.0,7.0,...|[1.0,21.0,0.0,0.0...|132000|\n|[20.0,11241.0,6.0...|[0.0,0.0,0.0,0.0,...|149000|\n|[90.0,10791.0,4.0...|[0.0,17.0,0.0,0.0...| 90000|\n|[20.0,13695.0,5.0...|[0.0,20.0,0.0,0.0...|159000|\n|[20.0,7560.0,5.0,...|[0.0,2.0,0.0,0.0,...|139000|\n+--------------------+--------------------+------+\nonly showing top 20 rows\n\ndfWithCategories: org.apache.spark.sql.DataFrame = [Id: int, MSSubClass: int ... 125 more fields]\ndata: org.apache.spark.sql.DataFrame = [features_scalar: vector, features_categorical: vector ... 1 more field]\n"
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/html" : ""
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 2,
+      "time" : "Took: 9 seconds 526 milliseconds, at 2017-6-21 17:53"
+    } ]
+  }, {
+    "metadata" : {
+      "id" : "840E172D30144F7096B5C2A7DA1413C5"
+    },
+    "cell_type" : "markdown",
+    "source" : "## Scaling scalar features"
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "6F5EBA6CF7F44E099ED6505CF8A64108"
+    },
+    "cell_type" : "code",
+    "source" : "val scaler = new StandardScaler()\n  .setInputCol(\"features_scalar\")\n  .setOutputCol(\"features_scalar_scaled\")\n  .setWithStd(true)\n  .setWithMean(true)\n\nval dataScaled = scaler.fit(data).transform(data)\n\nval dataCombined = dataScaled.map { row =>\n  val combinedFeatures = Vectors.dense(row.getAs[DenseVector](\"features_scalar_scaled\").values ++\n                                       row.getAs[DenseVector](\"features_categorical\"  ).values)\n  (combinedFeatures, row.getAs[Int](\"label\"))\n}.toDF(\"features\", \"label\")\n\ndataCombined.show()",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "+--------------------+------+\n|            features| label|\n+--------------------+------+\n|[0.07334983082099...|208500|\n|[-0.8722638821913...|181500|\n|[0.07334983082099...|223500|\n|[0.30975325907408...|140000|\n|[0.07334983082099...|250000|\n|[-0.1630535974320...|143000|\n|[-0.8722638821913...|307000|\n|[0.07334983082099...|200000|\n|[-0.1630535974320...|129900|\n|[3.14659439811116...|118000|\n|[-0.8722638821913...|129500|\n|[0.07334983082099...|345000|\n|[-0.8722638821913...|144000|\n|[-0.8722638821913...|279500|\n|[-0.8722638821913...|157000|\n|[-0.2812553115586...|132000|\n|[-0.8722638821913...|149000|\n|[0.78256011558026...| 90000|\n|[-0.8722638821913...|159000|\n|[-0.8722638821913...|139000|\n+--------------------+------+\nonly showing top 20 rows\n\nscaler: org.apache.spark.ml.feature.StandardScaler = stdScal_2b263d4fb096\ndataScaled: org.apache.spark.sql.DataFrame = [features_scalar: vector, features_categorical: vector ... 2 more fields]\ndataCombined: org.apache.spark.sql.DataFrame = [features: vector, label: int]\n"
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/html" : ""
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 3,
+      "time" : "Took: 2 seconds 669 milliseconds, at 2017-6-21 17:53"
+    } ]
+  }, {
+    "metadata" : {
+      "id" : "A80220CCF2BD4FD78832E13490AD3D45"
+    },
+    "cell_type" : "markdown",
+    "source" : "# Linear Regression with DeepLearning4J\n## Imports"
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "63B614A45D04432B8944B8B52631C086"
+    },
+    "cell_type" : "code",
+    "source" : "import scala.collection.JavaConverters._\n\nimport org.nd4j.linalg.factory.Nd4j\nimport org.nd4j.linalg.api.ndarray.INDArray\nimport org.nd4j.linalg.dataset.DataSet\nimport org.nd4j.linalg.activations.Activation \nimport org.nd4j.linalg.lossfunctions.LossFunctions\n\nimport org.deeplearning4j.datasets.iterator.impl.ListDataSetIterator \nimport org.deeplearning4j.nn.multilayer.MultiLayerNetwork\nimport org.deeplearning4j.nn.conf.{NeuralNetConfiguration, Updater}\nimport org.deeplearning4j.nn.api.OptimizationAlgorithm\nimport org.deeplearning4j.nn.conf.Updater\nimport org.deeplearning4j.nn.conf.layers.OutputLayer\nimport org.deeplearning4j.eval.RegressionEvaluation\n\nimport org.deeplearning4j.nn.conf.layers.DenseLayer\nimport org.nd4j.linalg.dataset.api.iterator.DataSetIterator\nimport org.deeplearning4j.nn.weights.WeightInit\nimport org.deeplearning4j.nn.conf.Updater",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "import scala.collection.JavaConverters._\nimport org.nd4j.linalg.factory.Nd4j\nimport org.nd4j.linalg.api.ndarray.INDArray\nimport org.nd4j.linalg.dataset.DataSet\nimport org.nd4j.linalg.activations.Activation\nimport org.nd4j.linalg.lossfunctions.LossFunctions\nimport org.deeplearning4j.datasets.iterator.impl.ListDataSetIterator\nimport org.deeplearning4j.nn.multilayer.MultiLayerNetwork\nimport org.deeplearning4j.nn.conf.{NeuralNetConfiguration, Updater}\nimport org.deeplearning4j.nn.api.OptimizationAlgorithm\nimport org.deeplearning4j.nn.conf.Updater\nimport org.deeplearning4j.nn.conf.layers.OutputLayer\nimport org.deeplearning4j.eval.RegressionEvaluation\nimport org.deeplearning4j.nn.conf.layers.DenseLayer\nimport org.nd4j.linalg.dataset.api.iterator.DataSetIterator\nimport org.deeplearning4j.nn.we..."
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/html" : ""
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 4,
+      "time" : "Took: 1 second 109 milliseconds, at 2017-6-21 17:53"
+    } ]
+  }, {
+    "metadata" : {
+      "id" : "23C355EC5BEA4F8D84048880AF0571F8"
+    },
+    "cell_type" : "markdown",
+    "source" : "## Spark-DeepLearning4j Bridge"
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "F5370E220860449698DD752AA064BA5E"
+    },
+    "cell_type" : "code",
+    "source" : "def spark2nd(s: DataFrame): DataSet = {\n  val listData: List[Row] = s.takeAsList(s.count().toInt).asScala.toList\n  val features: INDArray = Nd4j.create(listData.map(_.getAs[DenseVector](\"features\").toArray).toArray)\n  val labels  : INDArray = Nd4j.create(listData.map(_.getAs[Int](\"label\").toDouble).map(x => Array(x)).toArray)\n  new DataSet(features, labels)\n}",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "spark2nd: (s: org.apache.spark.sql.DataFrame)org.nd4j.linalg.dataset.DataSet\n"
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/html" : ""
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 5,
+      "time" : "Took: 1 second 318 milliseconds, at 2017-6-21 17:53"
+    } ]
+  }, {
+    "metadata" : {
+      "id" : "3362F209102940DE8254BA8ABA402635"
+    },
+    "cell_type" : "markdown",
+    "source" : "## Linear Regression"
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "644F364651E14CF0850A67D1FD9D7EA7"
+    },
+    "cell_type" : "code",
+    "source" : "// Data Preparation\nval Array(trainData, testData) = dataCombined.randomSplit(Array(0.7, 0.3))\n\nval trainNd: DataSet = spark2nd(trainData)\nval testNd : DataSet = spark2nd(testData)\n\n// Neural Network without hidden layers and an identity activation function for the linear regression\nval numFeatures: Int = trainNd.getFeatures.shape.apply(1)\n\nval net = new MultiLayerNetwork(new NeuralNetConfiguration.Builder()\n  .iterations(10000)\n  .learningRate(0.0001)\n  .list()\n  .layer(0, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)\n          .activation(Activation.IDENTITY)\n          .nIn(numFeatures).nOut(1).build())\n  .build())\n\nnet.init()\n\n// Training\nnet.fit(trainNd)\n\n// Evaluatin\nval output: INDArray = net.output(testNd.getFeatures)\n\nval eval = new RegressionEvaluation(\"Predictions\")\neval.eval(testNd.getLabels, output)\n\nprintln(eval.stats())\nprintln(\"Real     : \" + testNd.getLabels.getRows((0 to 10): _*))\nprintln(\"Predicted: \" + output.getRows((0 to 10): _*))",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "Column          MSE            MAE            RMSE           RSE            R^2            \nPredictions     1.95951e+09    3.31156e+04    4.42664e+04    3.44400e-01    8.36873e-01    \n\nReal     : [117,000.00, 93,000.00, 107,900.00, 109,500.00, 130,500.00, 135,000.00, 125,000.00, 179,200.00, 109,900.00, 109,500.00, 185,000.00]\nPredicted: [115,951.45, 107,675.93, 38,419.35, 16,050.16, 182,501.00, 154,622.30, 108,615.47, 211,309.00, 86,854.62, 105,810.50, 198,733.55]\ntrainData: org.apache.spark.sql.Dataset[org.apache.spark.sql.Row] = [features: vector, label: int]\ntestData: org.apache.spark.sql.Dataset[org.apache.spark.sql.Row] = [features: vector, label: int]\ntrainNd: org.nd4j.linalg.dataset.DataSet =\n===========INPUT===================\n[[-0.87, -0.73, 0.65, -0.52, 1.18, 1.07, -0.97, -0.29, 1.58, 0.48, 0.27, -0.79, -0.12, -0.47, -0.82, -0.24, 0.79, -0.76, -1.06, -0.21, -0.32, 0.60, 0.31, -0.40, 0.05, -0.46, -0.36, -0.12, -0.27, -0.07, -0.09, -1.23, 0.14, 0.00, 27.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 19.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 1.00, 6.00, 1.00, 0.00, 0.00, 1.00, 0.00, 1.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 1.00, 0.00, 1.00, 0.00, 5.00, 2.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00],\n [-0.87, -0.61, 0.65..."
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/html" : ""
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 6,
+      "time" : "Took: 22 seconds 935 milliseconds, at 2017-6-21 17:53"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : true,
+      "id" : "39535E375A534AD884404F61A5122AE7"
+    },
+    "cell_type" : "markdown",
+    "source" : "## Multiple Layers"
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "73B792BCF69E4D1492D83900E0F3791A"
+    },
+    "cell_type" : "code",
+    "source" : "// Data Preparation\nval dataCombinedNd: DataSet = spark2nd(dataCombined)\ndataCombinedNd.shuffle()\n\nval testAndTrain = dataCombinedNd.splitTestAndTrain(0.7)\nval (trainNd, testNd) = (testAndTrain.getTrain, testAndTrain.getTest)\n\n// Neural Network configuration\nval numFeatures  = dataCombinedNd.getFeatures.shape.apply(1)\nval hidden       = 75\n\nval batchSize    = 32\nval iterations   = 500\nval learningRate = 1E-10\nval seed         = 100\n\nval net = new MultiLayerNetwork(new NeuralNetConfiguration.Builder()\n  .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)\n  .weightInit(WeightInit.XAVIER)\n  .updater(Updater.NESTEROVS).momentum(0.9)\n\n  .iterations(iterations)\n  .learningRate(learningRate)\n  .seed(seed)\n                                \n  .list()\n  .layer(0, new DenseLayer .Builder().nIn(numFeatures).nOut(hidden).activation(Activation.IDENTITY).build())\n  .layer(1, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)\n                                     .nIn(hidden).nOut(1).activation(Activation.IDENTITY).build())\n                                \n  .build())\n\nnet.init()\n\n// Create training minibatches\nval trainBatches: DataSetIterator = new ListDataSetIterator(trainNd.asList, batchSize)\n\n// Training\nnet.fit(trainBatches)\n\n// Evaluation\nval output = net.output(testNd.getFeatures)\n\nval eval = new RegressionEvaluation(\"Predictions\")\neval.eval(testNd.getLabels, output)\n\nprintln(eval.stats())\nprintln(\"Real     : \" + testNd.getLabels.getRows((0 to 10): _*))\nprintln(\"Predicted: \" + output.getRows((0 to 10): _*))",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "Column          MSE            MAE            RMSE           RSE            R^2            \nPredictions     3.12536e+09    3.93309e+04    5.59049e+04    4.71651e-01    7.88155e-01    \n\nReal     : [135,000.00, 139,600.00, 164,900.00, 82,000.00, 235,000.00, 234,000.00, 85,000.00, 135,000.00, 123,000.00, 176,000.00, 611,657.00]\nPredicted: [158,367.03, 199,179.28, 206,805.64, 173,177.62, 189,356.81, 193,736.41, 48,615.98, 133,279.58, 151,057.91, 151,328.81, 408,496.31]\ndataCombinedNd: org.nd4j.linalg.dataset.DataSet =\n===========INPUT===================\n[[-0.87, 0.19, 1.37, -0.52, 0.75, 0.49, 2.22, -0.29, -0.90, 1.29, 1.19, -0.79, -0.12, 0.21, 1.11, -0.24, 0.79, -0.76, -1.06, -0.21, -0.93, 0.60, 1.65, 1.33, -0.75, 1.02, 2.78, -0.12, -0.27, -0.07, -0.09, 0.25, -1.37, 0.00, 51.00, 0.00, 0.00, 0.00, 0.00, 0.00, 1.00, 0.00, 13.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 14.00, 10.00, 0.00, 0.00, 1.00, 0.00, 0.00, 1.00, 0.00, 0.00, 1.00, 0.00, 0.00, 0.00, 0.00, 0.00, 1.00, 0.00, 3.00, 0.00, 32.00, 1.00, 0.00, 0.00, 0.00, 0.00, 2.00, 0.00, 0.00, 0.00],\n [-0.87, 0.69, -0.79, -0.52, 0.19, -0.38, 1.08, -0.29, -0.85, 0.16, -0.09, -0.79, -0.12, -0.74, 1.11, -0.24, 0.79, -0.76, 0.16, -0.21, -0.93, 0.60, 0.31, 0.05, 1.60, -0.09, -0.36, -0.12, -0.27, -0.07, -0.09, -0.4..."
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/html" : ""
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 7,
+      "time" : "Took: 28 seconds 255 milliseconds, at 2017-6-21 17:54"
+    } ]
+  } ],
+  "nbformat" : 4
+}

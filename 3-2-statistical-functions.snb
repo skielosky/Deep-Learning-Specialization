@@ -1,0 +1,291 @@
+{
+  "metadata" : {
+    "name" : "3-2-statistical-functions",
+    "user_save_timestamp" : "1970-01-01T03:00:00.000Z",
+    "auto_save_timestamp" : "1970-01-01T03:00:00.000Z",
+    "language_info" : {
+      "name" : "scala",
+      "file_extension" : "scala",
+      "codemirror_mode" : "text/x-scala"
+    },
+    "trusted" : true,
+    "customLocalRepo" : null,
+    "customRepos" : null,
+    "customDeps" : null,
+    "customImports" : null,
+    "customArgs" : null,
+    "customSparkConf" : null
+  },
+  "cells" : [ {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "050EB297297446C18AD6BFE0720CD029"
+    },
+    "cell_type" : "code",
+    "source" : "import org.apache.spark.sql.{SparkSession, Column}\nimport org.apache.spark.sql.functions._\n\nval spark = SparkSession\n  .builder()\n  .appName(\"Spark Example\")\n  .getOrCreate()\n\nimport spark.implicits._\n\nval df = spark.read.option(\"header\", true).option(\"inferSchema\", true).csv(\"data/train.csv\")",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "import org.apache.spark.sql.{SparkSession, Column}\nimport org.apache.spark.sql.functions._\nspark: org.apache.spark.sql.SparkSession = org.apache.spark.sql.SparkSession@4d6a0763\nimport spark.implicits._\ndf: org.apache.spark.sql.DataFrame = [Id: int, MSSubClass: int ... 79 more fields]\n"
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/html" : ""
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 1,
+      "time" : "Took: 7 seconds 425 milliseconds, at 2017-5-11 10:24"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "B3E79938565F4AAC8C062633BF6D0FF2"
+    },
+    "cell_type" : "code",
+    "source" : "df.select(\"Id\", \"SalePrice\")",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "res2: org.apache.spark.sql.DataFrame = [Id: int, SalePrice: int]\n"
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/html" : "<div class=\"df-canvas\">\n      <script data-this=\"{&quot;dataId&quot;:&quot;anonc943ae0258fa47381d0b4a894badb939&quot;,&quot;partitionIndexId&quot;:&quot;anonb19dfbb167dff5ef2fd2424de84c4c39&quot;,&quot;numPartitions&quot;:59,&quot;dfSchema&quot;:{&quot;type&quot;:&quot;struct&quot;,&quot;fields&quot;:[{&quot;name&quot;:&quot;Id&quot;,&quot;type&quot;:&quot;integer&quot;,&quot;nullable&quot;:true,&quot;metadata&quot;:{}},{&quot;name&quot;:&quot;SalePrice&quot;,&quot;type&quot;:&quot;integer&quot;,&quot;nullable&quot;:true,&quot;metadata&quot;:{}}]}}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/dataframe','../javascripts/notebook/consoleDir'], \n      function(dataframe, extension) {\n        dataframe.call(data, this, extension);\n      }\n    );/*]]>*/</script>\n      <link rel=\"stylesheet\" href=\"/assets/stylesheets/ipython/css/dataframe.css\" type=\"text/css\"/>\n    </div>"
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 2,
+      "time" : "Took: 3 seconds 546 milliseconds, at 2017-5-11 10:24"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "978CEE8D1B274BCB8A7F8D03479663B6"
+    },
+    "cell_type" : "code",
+    "source" : "df.select($\"Id\", $\"SalePrice\")",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "res4: org.apache.spark.sql.DataFrame = [Id: int, SalePrice: int]\n"
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/html" : "<div class=\"df-canvas\">\n      <script data-this=\"{&quot;dataId&quot;:&quot;anon27fc0653ae67433ad7b822a46d64c600&quot;,&quot;partitionIndexId&quot;:&quot;anonc8853a0fdcdc1b313f666c00296ab8f7&quot;,&quot;numPartitions&quot;:59,&quot;dfSchema&quot;:{&quot;type&quot;:&quot;struct&quot;,&quot;fields&quot;:[{&quot;name&quot;:&quot;Id&quot;,&quot;type&quot;:&quot;integer&quot;,&quot;nullable&quot;:true,&quot;metadata&quot;:{}},{&quot;name&quot;:&quot;SalePrice&quot;,&quot;type&quot;:&quot;integer&quot;,&quot;nullable&quot;:true,&quot;metadata&quot;:{}}]}}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/dataframe','../javascripts/notebook/consoleDir'], \n      function(dataframe, extension) {\n        dataframe.call(data, this, extension);\n      }\n    );/*]]>*/</script>\n      <link rel=\"stylesheet\" href=\"/assets/stylesheets/ipython/css/dataframe.css\" type=\"text/css\"/>\n    </div>"
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 3,
+      "time" : "Took: 2 seconds 5 milliseconds, at 2017-5-11 10:24"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "2E3D7D105CC1439C8448CCD1B5ADD55E"
+    },
+    "cell_type" : "code",
+    "source" : "df.select($\"Id\", $\"SalePrice\" as \"Sale Price in Dollars\", $\"SalePrice\" * 0.9 as \"Sale Price in Euros\")",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "res6: org.apache.spark.sql.DataFrame = [Id: int, Sale Price in Dollars: int ... 1 more field]\n"
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/html" : "<div class=\"df-canvas\">\n      <script data-this=\"{&quot;dataId&quot;:&quot;anone7c55c30a876d7f337061644505a1e9d&quot;,&quot;partitionIndexId&quot;:&quot;anon40bae4fb6f717a592d109a4fa42b4781&quot;,&quot;numPartitions&quot;:59,&quot;dfSchema&quot;:{&quot;type&quot;:&quot;struct&quot;,&quot;fields&quot;:[{&quot;name&quot;:&quot;Id&quot;,&quot;type&quot;:&quot;integer&quot;,&quot;nullable&quot;:true,&quot;metadata&quot;:{}},{&quot;name&quot;:&quot;Sale Price in Dollars&quot;,&quot;type&quot;:&quot;integer&quot;,&quot;nullable&quot;:true,&quot;metadata&quot;:{}},{&quot;name&quot;:&quot;Sale Price in Euros&quot;,&quot;type&quot;:&quot;double&quot;,&quot;nullable&quot;:true,&quot;metadata&quot;:{}}]}}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/dataframe','../javascripts/notebook/consoleDir'], \n      function(dataframe, extension) {\n        dataframe.call(data, this, extension);\n      }\n    );/*]]>*/</script>\n      <link rel=\"stylesheet\" href=\"/assets/stylesheets/ipython/css/dataframe.css\" type=\"text/css\"/>\n    </div>"
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 4,
+      "time" : "Took: 2 seconds 217 milliseconds, at 2017-5-11 10:24"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "B8BE14A6118445DE8DD3DA61F9ED6650"
+    },
+    "cell_type" : "code",
+    "source" : "def dollarsToEuros(c: Column): Column = c * 0.9\ndf.select($\"Id\", $\"SalePrice\" as \"Sale Price in Dollars\", dollarsToEuros($\"SalePrice\") as \"Sale Price in Euros\")",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "dollarsToEuros: (c: org.apache.spark.sql.Column)org.apache.spark.sql.Column\nres8: org.apache.spark.sql.DataFrame = [Id: int, Sale Price in Dollars: int ... 1 more field]\n"
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/html" : "<div class=\"df-canvas\">\n      <script data-this=\"{&quot;dataId&quot;:&quot;anon3cea9a5da4aea0dcd548aa73f9326b9f&quot;,&quot;partitionIndexId&quot;:&quot;anon9f204c9970d9b60f62113496d7baa7cf&quot;,&quot;numPartitions&quot;:59,&quot;dfSchema&quot;:{&quot;type&quot;:&quot;struct&quot;,&quot;fields&quot;:[{&quot;name&quot;:&quot;Id&quot;,&quot;type&quot;:&quot;integer&quot;,&quot;nullable&quot;:true,&quot;metadata&quot;:{}},{&quot;name&quot;:&quot;Sale Price in Dollars&quot;,&quot;type&quot;:&quot;integer&quot;,&quot;nullable&quot;:true,&quot;metadata&quot;:{}},{&quot;name&quot;:&quot;Sale Price in Euros&quot;,&quot;type&quot;:&quot;double&quot;,&quot;nullable&quot;:true,&quot;metadata&quot;:{}}]}}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/dataframe','../javascripts/notebook/consoleDir'], \n      function(dataframe, extension) {\n        dataframe.call(data, this, extension);\n      }\n    );/*]]>*/</script>\n      <link rel=\"stylesheet\" href=\"/assets/stylesheets/ipython/css/dataframe.css\" type=\"text/css\"/>\n    </div>"
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 5,
+      "time" : "Took: 2 seconds 120 milliseconds, at 2017-5-11 10:24"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "85105F1BCDB2465F8E4FFD5EC1287249"
+    },
+    "cell_type" : "code",
+    "source" : "df.withColumn(\"Random\", rand(42) > 0.5).filter(\"Random\").select(\"Id\", \"SalePrice\")",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "res10: org.apache.spark.sql.DataFrame = [Id: int, SalePrice: int]\n"
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/html" : "<div class=\"df-canvas\">\n      <script data-this=\"{&quot;dataId&quot;:&quot;anon3471b45d60d2228ad8983b120143ef48&quot;,&quot;partitionIndexId&quot;:&quot;anon3ac026a7997e3d54d4c2e06d0032de76&quot;,&quot;numPartitions&quot;:31,&quot;dfSchema&quot;:{&quot;type&quot;:&quot;struct&quot;,&quot;fields&quot;:[{&quot;name&quot;:&quot;Id&quot;,&quot;type&quot;:&quot;integer&quot;,&quot;nullable&quot;:true,&quot;metadata&quot;:{}},{&quot;name&quot;:&quot;SalePrice&quot;,&quot;type&quot;:&quot;integer&quot;,&quot;nullable&quot;:true,&quot;metadata&quot;:{}}]}}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/dataframe','../javascripts/notebook/consoleDir'], \n      function(dataframe, extension) {\n        dataframe.call(data, this, extension);\n      }\n    );/*]]>*/</script>\n      <link rel=\"stylesheet\" href=\"/assets/stylesheets/ipython/css/dataframe.css\" type=\"text/css\"/>\n    </div>"
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 6,
+      "time" : "Took: 4 seconds 538 milliseconds, at 2017-5-11 10:24"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "D9AD27A2E9F94AE1B3FF519A95B241EA"
+    },
+    "cell_type" : "code",
+    "source" : "df.select(\n  variance(\"SalePrice\") as \"Variance\"\n, mean    (\"SalePrice\") as \"Mean\"\n, stddev  (\"SalePrice\") as \"Standard Deviation\")",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "res12: org.apache.spark.sql.DataFrame = [Variance: double, Mean: double ... 1 more field]\n"
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/html" : "<div class=\"df-canvas\">\n      <script data-this=\"{&quot;dataId&quot;:&quot;anon15a27bb981462df8946b9da91d1aeac8&quot;,&quot;partitionIndexId&quot;:&quot;anon73cc9e86b56791f734c6a577c67803a2&quot;,&quot;numPartitions&quot;:1,&quot;dfSchema&quot;:{&quot;type&quot;:&quot;struct&quot;,&quot;fields&quot;:[{&quot;name&quot;:&quot;Variance&quot;,&quot;type&quot;:&quot;double&quot;,&quot;nullable&quot;:true,&quot;metadata&quot;:{}},{&quot;name&quot;:&quot;Mean&quot;,&quot;type&quot;:&quot;double&quot;,&quot;nullable&quot;:true,&quot;metadata&quot;:{}},{&quot;name&quot;:&quot;Standard Deviation&quot;,&quot;type&quot;:&quot;double&quot;,&quot;nullable&quot;:true,&quot;metadata&quot;:{}}]}}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/dataframe','../javascripts/notebook/consoleDir'], \n      function(dataframe, extension) {\n        dataframe.call(data, this, extension);\n      }\n    );/*]]>*/</script>\n      <link rel=\"stylesheet\" href=\"/assets/stylesheets/ipython/css/dataframe.css\" type=\"text/css\"/>\n    </div>"
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 7,
+      "time" : "Took: 2 seconds 777 milliseconds, at 2017-5-11 10:24"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "E32064409C054688962FB958D6B7A724"
+    },
+    "cell_type" : "code",
+    "source" : "df.describe(\"SalePrice\", \"LotArea\")",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "res14: org.apache.spark.sql.DataFrame = [summary: string, SalePrice: string ... 1 more field]\n"
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/html" : "<div class=\"df-canvas\">\n      <script data-this=\"{&quot;dataId&quot;:&quot;anon8ad988fd81817db60aa91a3c00a4fbc0&quot;,&quot;partitionIndexId&quot;:&quot;anon65bcab1a8ea69662963b155c534239b8&quot;,&quot;numPartitions&quot;:1,&quot;dfSchema&quot;:{&quot;type&quot;:&quot;struct&quot;,&quot;fields&quot;:[{&quot;name&quot;:&quot;summary&quot;,&quot;type&quot;:&quot;string&quot;,&quot;nullable&quot;:true,&quot;metadata&quot;:{}},{&quot;name&quot;:&quot;SalePrice&quot;,&quot;type&quot;:&quot;string&quot;,&quot;nullable&quot;:true,&quot;metadata&quot;:{}},{&quot;name&quot;:&quot;LotArea&quot;,&quot;type&quot;:&quot;string&quot;,&quot;nullable&quot;:true,&quot;metadata&quot;:{}}]}}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/dataframe','../javascripts/notebook/consoleDir'], \n      function(dataframe, extension) {\n        dataframe.call(data, this, extension);\n      }\n    );/*]]>*/</script>\n      <link rel=\"stylesheet\" href=\"/assets/stylesheets/ipython/css/dataframe.css\" type=\"text/css\"/>\n    </div>"
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 8,
+      "time" : "Took: 2 seconds 127 milliseconds, at 2017-5-11 10:24"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "F8B46F978B5D44739C8CC22E34D46D9D"
+    },
+    "cell_type" : "code",
+    "source" : "df.select(corr(\"OverallQual\", \"SalePrice\"))",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "res16: org.apache.spark.sql.DataFrame = [corr(OverallQual, SalePrice): double]\n"
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/html" : "<div class=\"df-canvas\">\n      <script data-this=\"{&quot;dataId&quot;:&quot;anonfc8a66b2fce916427f61a9479ac4f315&quot;,&quot;partitionIndexId&quot;:&quot;anon2048aab021bed3d27ffea996e82ab504&quot;,&quot;numPartitions&quot;:1,&quot;dfSchema&quot;:{&quot;type&quot;:&quot;struct&quot;,&quot;fields&quot;:[{&quot;name&quot;:&quot;corr(OverallQual, SalePrice)&quot;,&quot;type&quot;:&quot;double&quot;,&quot;nullable&quot;:true,&quot;metadata&quot;:{}}]}}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/dataframe','../javascripts/notebook/consoleDir'], \n      function(dataframe, extension) {\n        dataframe.call(data, this, extension);\n      }\n    );/*]]>*/</script>\n      <link rel=\"stylesheet\" href=\"/assets/stylesheets/ipython/css/dataframe.css\" type=\"text/css\"/>\n    </div>"
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 9,
+      "time" : "Took: 1 second 907 milliseconds, at 2017-5-11 10:25"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "presentation" : {
+        "tabs_state" : "{\n  \"tab_id\": \"#tab95525249-0\"\n}",
+        "pivot_chart_state" : "{\n  \"hiddenAttributes\": [],\n  \"menuLimit\": 200,\n  \"cols\": [],\n  \"rows\": [],\n  \"vals\": [],\n  \"exclusions\": {},\n  \"inclusions\": {},\n  \"unusedAttrsVertical\": 85,\n  \"autoSortUnusedAttrs\": false,\n  \"inclusionsInfo\": {},\n  \"aggregatorName\": \"Count\",\n  \"rendererName\": \"Table\"\n}"
+      },
+      "id" : "6C70C16494A242859770373E5D3FB356"
+    },
+    "cell_type" : "code",
+    "source" : "import org.apache.spark.sql.types.{StructField, IntegerType}\n\nval fields = df.schema.fields.collect { case StructField(name, IntegerType, _, _) => name }\nval correlations = df.select(fields.map(corr(_, \"SalePrice\")): _*).first.toSeq\nfields zip correlations",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "import org.apache.spark.sql.types.{StructField, IntegerType}\nfields: Array[String] = Array(Id, MSSubClass, LotArea, OverallQual, OverallCond, YearBuilt, YearRemodAdd, BsmtFinSF1, BsmtFinSF2, BsmtUnfSF, TotalBsmtSF, 1stFlrSF, 2ndFlrSF, LowQualFinSF, GrLivArea, BsmtFullBath, BsmtHalfBath, FullBath, HalfBath, BedroomAbvGr, KitchenAbvGr, TotRmsAbvGrd, Fireplaces, GarageCars, GarageArea, WoodDeckSF, OpenPorchSF, EnclosedPorch, 3SsnPorch, ScreenPorch, PoolArea, MiscVal, MoSold, YrSold, SalePrice)\ncorrelations: Seq[Any] = WrappedArray(-0.021916719443430967, -0.08428413512659509, 0.2638433538714051, 0.7909816005838053, -0.07785589404867797, 0.5228973328794967, 0.5071009671113866, 0.38641980624215344, -0.01137812145021515, 0.21447910554696928, 0.6135805515591943, 0.6058521846919153, 0.3193338028..."
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/html" : "<div>\n      <script data-this=\"{&quot;dataId&quot;:&quot;anon5966210010a8912810f31b6b29b00988&quot;,&quot;dataInit&quot;:[],&quot;genId&quot;:&quot;95525249&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/playground','../javascripts/notebook/magic/tabs'], \n      function(playground, _magictabs) {\n        // data ==> data-this (in observable.js's scopedEval) ==> this in JS => { dataId, dataInit, ... }\n        // this ==> scope (in observable.js's scopedEval) ==> this.parentElement ==> div.container below (toHtml)\n\n        playground.call(data,\n                        this\n                        ,\n                        {\n    \"f\": _magictabs,\n    \"o\": {}\n  }\n  \n                        \n                        \n                      );\n      }\n    );/*]]>*/</script>\n    <div>\n      <div>\n        <ul class=\"nav nav-tabs\" id=\"ul95525249\"><li>\n              <a href=\"#tab95525249-0\"><i class=\"fa fa-table\"/></a>\n            </li><li>\n              <a href=\"#tab95525249-1\"><i class=\"fa fa-bar-chart\"/></a>\n            </li><li>\n              <a href=\"#tab95525249-2\"><i class=\"fa fa-pie-chart\"/></a>\n            </li><li>\n              <a href=\"#tab95525249-3\"><i class=\"fa fa-cubes\"/></a>\n            </li></ul>\n\n        <div class=\"tab-content\" id=\"tab95525249\"><div class=\"tab-pane\" id=\"tab95525249-0\">\n            <div>\n      <script data-this=\"{&quot;dataId&quot;:&quot;anon3c8c84060686c738098255288f224b50&quot;,&quot;dataInit&quot;:[{&quot;_1&quot;:&quot;Id&quot;,&quot;_2&quot;:-0.021916719443430967},{&quot;_1&quot;:&quot;MSSubClass&quot;,&quot;_2&quot;:-0.08428413512659509},{&quot;_1&quot;:&quot;LotArea&quot;,&quot;_2&quot;:0.2638433538714051},{&quot;_1&quot;:&quot;OverallQual&quot;,&quot;_2&quot;:0.7909816005838053},{&quot;_1&quot;:&quot;OverallCond&quot;,&quot;_2&quot;:-0.07785589404867797},{&quot;_1&quot;:&quot;YearBuilt&quot;,&quot;_2&quot;:0.5228973328794967},{&quot;_1&quot;:&quot;YearRemodAdd&quot;,&quot;_2&quot;:0.5071009671113866},{&quot;_1&quot;:&quot;BsmtFinSF1&quot;,&quot;_2&quot;:0.38641980624215344},{&quot;_1&quot;:&quot;BsmtFinSF2&quot;,&quot;_2&quot;:-0.01137812145021515},{&quot;_1&quot;:&quot;BsmtUnfSF&quot;,&quot;_2&quot;:0.21447910554696928},{&quot;_1&quot;:&quot;TotalBsmtSF&quot;,&quot;_2&quot;:0.6135805515591943},{&quot;_1&quot;:&quot;1stFlrSF&quot;,&quot;_2&quot;:0.6058521846919153},{&quot;_1&quot;:&quot;2ndFlrSF&quot;,&quot;_2&quot;:0.31933380283206736},{&quot;_1&quot;:&quot;LowQualFinSF&quot;,&quot;_2&quot;:-0.02560613000067955},{&quot;_1&quot;:&quot;GrLivArea&quot;,&quot;_2&quot;:0.7086244776126515},{&quot;_1&quot;:&quot;BsmtFullBath&quot;,&quot;_2&quot;:0.22712223313149427},{&quot;_1&quot;:&quot;BsmtHalfBath&quot;,&quot;_2&quot;:-0.016844154297358943},{&quot;_1&quot;:&quot;FullBath&quot;,&quot;_2&quot;:0.5606637627484453},{&quot;_1&quot;:&quot;HalfBath&quot;,&quot;_2&quot;:0.28410767559478256},{&quot;_1&quot;:&quot;BedroomAbvGr&quot;,&quot;_2&quot;:0.16821315430073963},{&quot;_1&quot;:&quot;KitchenAbvGr&quot;,&quot;_2&quot;:-0.13590737084214105},{&quot;_1&quot;:&quot;TotRmsAbvGrd&quot;,&quot;_2&quot;:0.5337231555820284},{&quot;_1&quot;:&quot;Fireplaces&quot;,&quot;_2&quot;:0.46692883675152763},{&quot;_1&quot;:&quot;GarageCars&quot;,&quot;_2&quot;:0.6404091972583519},{&quot;_1&quot;:&quot;GarageArea&quot;,&quot;_2&quot;:0.6234314389183622},{&quot;_1&quot;:&quot;WoodDeckSF&quot;,&quot;_2&quot;:0.32441344456812926},{&quot;_1&quot;:&quot;OpenPorchSF&quot;,&quot;_2&quot;:0.31585622711605504},{&quot;_1&quot;:&quot;EnclosedPorch&quot;,&quot;_2&quot;:-0.1285779579259566},{&quot;_1&quot;:&quot;3SsnPorch&quot;,&quot;_2&quot;:0.04458366533574838},{&quot;_1&quot;:&quot;ScreenPorch&quot;,&quot;_2&quot;:0.11144657114291112},{&quot;_1&quot;:&quot;PoolArea&quot;,&quot;_2&quot;:0.09240354949187318},{&quot;_1&quot;:&quot;MiscVal&quot;,&quot;_2&quot;:-0.021189579640303213},{&quot;_1&quot;:&quot;MoSold&quot;,&quot;_2&quot;:0.046432245223819446},{&quot;_1&quot;:&quot;YrSold&quot;,&quot;_2&quot;:-0.028922585168736813},{&quot;_1&quot;:&quot;SalePrice&quot;,&quot;_2&quot;:1.0}],&quot;genId&quot;:&quot;1883931545&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/playground','../javascripts/notebook/magic/tableChart'], \n      function(playground, _magictableChart) {\n        // data ==> data-this (in observable.js's scopedEval) ==> this in JS => { dataId, dataInit, ... }\n        // this ==> scope (in observable.js's scopedEval) ==> this.parentElement ==> div.container below (toHtml)\n\n        playground.call(data,\n                        this\n                        ,\n                        {\n    \"f\": _magictableChart,\n    \"o\": {\"headers\":[\"_1\",\"_2\"],\"width\":600,\"height\":400}\n  }\n  \n                        \n                        \n                      );\n      }\n    );/*]]>*/</script>\n    <div>\n      <span class=\"chart-total-item-count\"><p data-bind=\"text: value\"><script data-this=\"{&quot;valueId&quot;:&quot;anon3810d767436cd047265d9cc294fd96eb&quot;,&quot;initialValue&quot;:&quot;35&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/\nreq(\n['observable', 'knockout'],\nfunction (O, ko) {\n  ko.applyBindings({\n      value: O.makeObservable(valueId, initialValue)\n    },\n    this\n  );\n});\n        /*]]>*/</script></p> entries total</span>\n      <span class=\"chart-sampling-warning\"><p data-bind=\"text: value\"><script data-this=\"{&quot;valueId&quot;:&quot;anonc54a4ad782aaa6c3d0b81a97873a4e0b&quot;,&quot;initialValue&quot;:&quot;&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/\nreq(\n['observable', 'knockout'],\nfunction (O, ko) {\n  ko.applyBindings({\n      value: O.makeObservable(valueId, initialValue)\n    },\n    this\n  );\n});\n        /*]]>*/</script></p></span>\n      <div>\n      </div>\n    </div></div>\n            </div><div class=\"tab-pane\" id=\"tab95525249-1\">\n            <div>\n      <script data-this=\"{&quot;dataId&quot;:&quot;anone449aa6a63029383d1c065bd2c12c1be&quot;,&quot;dataInit&quot;:[{&quot;_1&quot;:&quot;Id&quot;,&quot;_2&quot;:-0.021916719443430967},{&quot;_1&quot;:&quot;MSSubClass&quot;,&quot;_2&quot;:-0.08428413512659509},{&quot;_1&quot;:&quot;LotArea&quot;,&quot;_2&quot;:0.2638433538714051},{&quot;_1&quot;:&quot;OverallQual&quot;,&quot;_2&quot;:0.7909816005838053},{&quot;_1&quot;:&quot;OverallCond&quot;,&quot;_2&quot;:-0.07785589404867797},{&quot;_1&quot;:&quot;YearBuilt&quot;,&quot;_2&quot;:0.5228973328794967},{&quot;_1&quot;:&quot;YearRemodAdd&quot;,&quot;_2&quot;:0.5071009671113866},{&quot;_1&quot;:&quot;BsmtFinSF1&quot;,&quot;_2&quot;:0.38641980624215344},{&quot;_1&quot;:&quot;BsmtFinSF2&quot;,&quot;_2&quot;:-0.01137812145021515},{&quot;_1&quot;:&quot;BsmtUnfSF&quot;,&quot;_2&quot;:0.21447910554696928},{&quot;_1&quot;:&quot;TotalBsmtSF&quot;,&quot;_2&quot;:0.6135805515591943},{&quot;_1&quot;:&quot;1stFlrSF&quot;,&quot;_2&quot;:0.6058521846919153},{&quot;_1&quot;:&quot;2ndFlrSF&quot;,&quot;_2&quot;:0.31933380283206736},{&quot;_1&quot;:&quot;LowQualFinSF&quot;,&quot;_2&quot;:-0.02560613000067955},{&quot;_1&quot;:&quot;GrLivArea&quot;,&quot;_2&quot;:0.7086244776126515},{&quot;_1&quot;:&quot;BsmtFullBath&quot;,&quot;_2&quot;:0.22712223313149427},{&quot;_1&quot;:&quot;BsmtHalfBath&quot;,&quot;_2&quot;:-0.016844154297358943},{&quot;_1&quot;:&quot;FullBath&quot;,&quot;_2&quot;:0.5606637627484453},{&quot;_1&quot;:&quot;HalfBath&quot;,&quot;_2&quot;:0.28410767559478256},{&quot;_1&quot;:&quot;BedroomAbvGr&quot;,&quot;_2&quot;:0.16821315430073963},{&quot;_1&quot;:&quot;KitchenAbvGr&quot;,&quot;_2&quot;:-0.13590737084214105},{&quot;_1&quot;:&quot;TotRmsAbvGrd&quot;,&quot;_2&quot;:0.5337231555820284},{&quot;_1&quot;:&quot;Fireplaces&quot;,&quot;_2&quot;:0.46692883675152763},{&quot;_1&quot;:&quot;GarageCars&quot;,&quot;_2&quot;:0.6404091972583519},{&quot;_1&quot;:&quot;GarageArea&quot;,&quot;_2&quot;:0.6234314389183622},{&quot;_1&quot;:&quot;WoodDeckSF&quot;,&quot;_2&quot;:0.32441344456812926},{&quot;_1&quot;:&quot;OpenPorchSF&quot;,&quot;_2&quot;:0.31585622711605504},{&quot;_1&quot;:&quot;EnclosedPorch&quot;,&quot;_2&quot;:-0.1285779579259566},{&quot;_1&quot;:&quot;3SsnPorch&quot;,&quot;_2&quot;:0.04458366533574838},{&quot;_1&quot;:&quot;ScreenPorch&quot;,&quot;_2&quot;:0.11144657114291112},{&quot;_1&quot;:&quot;PoolArea&quot;,&quot;_2&quot;:0.09240354949187318},{&quot;_1&quot;:&quot;MiscVal&quot;,&quot;_2&quot;:-0.021189579640303213},{&quot;_1&quot;:&quot;MoSold&quot;,&quot;_2&quot;:0.046432245223819446},{&quot;_1&quot;:&quot;YrSold&quot;,&quot;_2&quot;:-0.028922585168736813},{&quot;_1&quot;:&quot;SalePrice&quot;,&quot;_2&quot;:1.0}],&quot;genId&quot;:&quot;1518581061&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/playground','../javascripts/notebook/magic/barChart'], \n      function(playground, _magicbarChart) {\n        // data ==> data-this (in observable.js's scopedEval) ==> this in JS => { dataId, dataInit, ... }\n        // this ==> scope (in observable.js's scopedEval) ==> this.parentElement ==> div.container below (toHtml)\n\n        playground.call(data,\n                        this\n                        ,\n                        {\n    \"f\": _magicbarChart,\n    \"o\": {\"x\":\"_1\",\"y\":\"_2\",\"width\":600,\"height\":400}\n  }\n  \n                        \n                        \n                      );\n      }\n    );/*]]>*/</script>\n    <div>\n      <span class=\"chart-total-item-count\"><p data-bind=\"text: value\"><script data-this=\"{&quot;valueId&quot;:&quot;anon9b90e2e703618dfe7a0d78146e4eb33e&quot;,&quot;initialValue&quot;:&quot;35&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/\nreq(\n['observable', 'knockout'],\nfunction (O, ko) {\n  ko.applyBindings({\n      value: O.makeObservable(valueId, initialValue)\n    },\n    this\n  );\n});\n        /*]]>*/</script></p> entries total</span>\n      <span class=\"chart-sampling-warning\"><p data-bind=\"text: value\"><script data-this=\"{&quot;valueId&quot;:&quot;anond2b7c437f4c023b38f09635b64c2b94c&quot;,&quot;initialValue&quot;:&quot;&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/\nreq(\n['observable', 'knockout'],\nfunction (O, ko) {\n  ko.applyBindings({\n      value: O.makeObservable(valueId, initialValue)\n    },\n    this\n  );\n});\n        /*]]>*/</script></p></span>\n      <div>\n      </div>\n    </div></div>\n            </div><div class=\"tab-pane\" id=\"tab95525249-2\">\n            <div>\n      <script data-this=\"{&quot;dataId&quot;:&quot;anon82d0bb367e5ba43fbd4d536f855e55f3&quot;,&quot;dataInit&quot;:[{&quot;_1&quot;:&quot;Id&quot;,&quot;_2&quot;:-0.021916719443430967},{&quot;_1&quot;:&quot;MSSubClass&quot;,&quot;_2&quot;:-0.08428413512659509},{&quot;_1&quot;:&quot;LotArea&quot;,&quot;_2&quot;:0.2638433538714051},{&quot;_1&quot;:&quot;OverallQual&quot;,&quot;_2&quot;:0.7909816005838053},{&quot;_1&quot;:&quot;OverallCond&quot;,&quot;_2&quot;:-0.07785589404867797},{&quot;_1&quot;:&quot;YearBuilt&quot;,&quot;_2&quot;:0.5228973328794967},{&quot;_1&quot;:&quot;YearRemodAdd&quot;,&quot;_2&quot;:0.5071009671113866},{&quot;_1&quot;:&quot;BsmtFinSF1&quot;,&quot;_2&quot;:0.38641980624215344},{&quot;_1&quot;:&quot;BsmtFinSF2&quot;,&quot;_2&quot;:-0.01137812145021515},{&quot;_1&quot;:&quot;BsmtUnfSF&quot;,&quot;_2&quot;:0.21447910554696928},{&quot;_1&quot;:&quot;TotalBsmtSF&quot;,&quot;_2&quot;:0.6135805515591943},{&quot;_1&quot;:&quot;1stFlrSF&quot;,&quot;_2&quot;:0.6058521846919153},{&quot;_1&quot;:&quot;2ndFlrSF&quot;,&quot;_2&quot;:0.31933380283206736},{&quot;_1&quot;:&quot;LowQualFinSF&quot;,&quot;_2&quot;:-0.02560613000067955},{&quot;_1&quot;:&quot;GrLivArea&quot;,&quot;_2&quot;:0.7086244776126515},{&quot;_1&quot;:&quot;BsmtFullBath&quot;,&quot;_2&quot;:0.22712223313149427},{&quot;_1&quot;:&quot;BsmtHalfBath&quot;,&quot;_2&quot;:-0.016844154297358943},{&quot;_1&quot;:&quot;FullBath&quot;,&quot;_2&quot;:0.5606637627484453},{&quot;_1&quot;:&quot;HalfBath&quot;,&quot;_2&quot;:0.28410767559478256},{&quot;_1&quot;:&quot;BedroomAbvGr&quot;,&quot;_2&quot;:0.16821315430073963},{&quot;_1&quot;:&quot;KitchenAbvGr&quot;,&quot;_2&quot;:-0.13590737084214105},{&quot;_1&quot;:&quot;TotRmsAbvGrd&quot;,&quot;_2&quot;:0.5337231555820284},{&quot;_1&quot;:&quot;Fireplaces&quot;,&quot;_2&quot;:0.46692883675152763},{&quot;_1&quot;:&quot;GarageCars&quot;,&quot;_2&quot;:0.6404091972583519},{&quot;_1&quot;:&quot;GarageArea&quot;,&quot;_2&quot;:0.6234314389183622},{&quot;_1&quot;:&quot;WoodDeckSF&quot;,&quot;_2&quot;:0.32441344456812926},{&quot;_1&quot;:&quot;OpenPorchSF&quot;,&quot;_2&quot;:0.31585622711605504},{&quot;_1&quot;:&quot;EnclosedPorch&quot;,&quot;_2&quot;:-0.1285779579259566},{&quot;_1&quot;:&quot;3SsnPorch&quot;,&quot;_2&quot;:0.04458366533574838},{&quot;_1&quot;:&quot;ScreenPorch&quot;,&quot;_2&quot;:0.11144657114291112},{&quot;_1&quot;:&quot;PoolArea&quot;,&quot;_2&quot;:0.09240354949187318},{&quot;_1&quot;:&quot;MiscVal&quot;,&quot;_2&quot;:-0.021189579640303213},{&quot;_1&quot;:&quot;MoSold&quot;,&quot;_2&quot;:0.046432245223819446},{&quot;_1&quot;:&quot;YrSold&quot;,&quot;_2&quot;:-0.028922585168736813},{&quot;_1&quot;:&quot;SalePrice&quot;,&quot;_2&quot;:1.0}],&quot;genId&quot;:&quot;719744726&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/playground','../javascripts/notebook/magic/pieChart'], \n      function(playground, _magicpieChart) {\n        // data ==> data-this (in observable.js's scopedEval) ==> this in JS => { dataId, dataInit, ... }\n        // this ==> scope (in observable.js's scopedEval) ==> this.parentElement ==> div.container below (toHtml)\n\n        playground.call(data,\n                        this\n                        ,\n                        {\n    \"f\": _magicpieChart,\n    \"o\": {\"series\":\"_1\",\"p\":\"_2\",\"width\":600,\"height\":400}\n  }\n  \n                        \n                        \n                      );\n      }\n    );/*]]>*/</script>\n    <div>\n      <span class=\"chart-total-item-count\"><p data-bind=\"text: value\"><script data-this=\"{&quot;valueId&quot;:&quot;anonc1b2d779933c7794d3f37bc1ceb48c68&quot;,&quot;initialValue&quot;:&quot;35&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/\nreq(\n['observable', 'knockout'],\nfunction (O, ko) {\n  ko.applyBindings({\n      value: O.makeObservable(valueId, initialValue)\n    },\n    this\n  );\n});\n        /*]]>*/</script></p> entries total</span>\n      <span class=\"chart-sampling-warning\"><p data-bind=\"text: value\"><script data-this=\"{&quot;valueId&quot;:&quot;anon9fcfa20a872d91038016148ebc274f56&quot;,&quot;initialValue&quot;:&quot;&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/\nreq(\n['observable', 'knockout'],\nfunction (O, ko) {\n  ko.applyBindings({\n      value: O.makeObservable(valueId, initialValue)\n    },\n    this\n  );\n});\n        /*]]>*/</script></p></span>\n      <div>\n      </div>\n    </div></div>\n            </div><div class=\"tab-pane\" id=\"tab95525249-3\">\n            <div>\n      <script data-this=\"{&quot;dataId&quot;:&quot;anon6888fe1ecdda6c2a071f5064c4c6f65c&quot;,&quot;dataInit&quot;:[{&quot;_1&quot;:&quot;Id&quot;,&quot;_2&quot;:-0.021916719443430967},{&quot;_1&quot;:&quot;MSSubClass&quot;,&quot;_2&quot;:-0.08428413512659509},{&quot;_1&quot;:&quot;LotArea&quot;,&quot;_2&quot;:0.2638433538714051},{&quot;_1&quot;:&quot;OverallQual&quot;,&quot;_2&quot;:0.7909816005838053},{&quot;_1&quot;:&quot;OverallCond&quot;,&quot;_2&quot;:-0.07785589404867797},{&quot;_1&quot;:&quot;YearBuilt&quot;,&quot;_2&quot;:0.5228973328794967},{&quot;_1&quot;:&quot;YearRemodAdd&quot;,&quot;_2&quot;:0.5071009671113866},{&quot;_1&quot;:&quot;BsmtFinSF1&quot;,&quot;_2&quot;:0.38641980624215344},{&quot;_1&quot;:&quot;BsmtFinSF2&quot;,&quot;_2&quot;:-0.01137812145021515},{&quot;_1&quot;:&quot;BsmtUnfSF&quot;,&quot;_2&quot;:0.21447910554696928},{&quot;_1&quot;:&quot;TotalBsmtSF&quot;,&quot;_2&quot;:0.6135805515591943},{&quot;_1&quot;:&quot;1stFlrSF&quot;,&quot;_2&quot;:0.6058521846919153},{&quot;_1&quot;:&quot;2ndFlrSF&quot;,&quot;_2&quot;:0.31933380283206736},{&quot;_1&quot;:&quot;LowQualFinSF&quot;,&quot;_2&quot;:-0.02560613000067955},{&quot;_1&quot;:&quot;GrLivArea&quot;,&quot;_2&quot;:0.7086244776126515},{&quot;_1&quot;:&quot;BsmtFullBath&quot;,&quot;_2&quot;:0.22712223313149427},{&quot;_1&quot;:&quot;BsmtHalfBath&quot;,&quot;_2&quot;:-0.016844154297358943},{&quot;_1&quot;:&quot;FullBath&quot;,&quot;_2&quot;:0.5606637627484453},{&quot;_1&quot;:&quot;HalfBath&quot;,&quot;_2&quot;:0.28410767559478256},{&quot;_1&quot;:&quot;BedroomAbvGr&quot;,&quot;_2&quot;:0.16821315430073963},{&quot;_1&quot;:&quot;KitchenAbvGr&quot;,&quot;_2&quot;:-0.13590737084214105},{&quot;_1&quot;:&quot;TotRmsAbvGrd&quot;,&quot;_2&quot;:0.5337231555820284},{&quot;_1&quot;:&quot;Fireplaces&quot;,&quot;_2&quot;:0.46692883675152763},{&quot;_1&quot;:&quot;GarageCars&quot;,&quot;_2&quot;:0.6404091972583519},{&quot;_1&quot;:&quot;GarageArea&quot;,&quot;_2&quot;:0.6234314389183622},{&quot;_1&quot;:&quot;WoodDeckSF&quot;,&quot;_2&quot;:0.32441344456812926},{&quot;_1&quot;:&quot;OpenPorchSF&quot;,&quot;_2&quot;:0.31585622711605504},{&quot;_1&quot;:&quot;EnclosedPorch&quot;,&quot;_2&quot;:-0.1285779579259566},{&quot;_1&quot;:&quot;3SsnPorch&quot;,&quot;_2&quot;:0.04458366533574838},{&quot;_1&quot;:&quot;ScreenPorch&quot;,&quot;_2&quot;:0.11144657114291112},{&quot;_1&quot;:&quot;PoolArea&quot;,&quot;_2&quot;:0.09240354949187318},{&quot;_1&quot;:&quot;MiscVal&quot;,&quot;_2&quot;:-0.021189579640303213},{&quot;_1&quot;:&quot;MoSold&quot;,&quot;_2&quot;:0.046432245223819446},{&quot;_1&quot;:&quot;YrSold&quot;,&quot;_2&quot;:-0.028922585168736813},{&quot;_1&quot;:&quot;SalePrice&quot;,&quot;_2&quot;:1.0}],&quot;genId&quot;:&quot;668908876&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/playground','../javascripts/notebook/magic/pivotChart'], \n      function(playground, _magicpivotChart) {\n        // data ==> data-this (in observable.js's scopedEval) ==> this in JS => { dataId, dataInit, ... }\n        // this ==> scope (in observable.js's scopedEval) ==> this.parentElement ==> div.container below (toHtml)\n\n        playground.call(data,\n                        this\n                        ,\n                        {\n    \"f\": _magicpivotChart,\n    \"o\": {\"width\":600,\"height\":400,\"derivedAttributes\":{},\"extraOptions\":{}}\n  }\n  \n                        \n                        \n                      );\n      }\n    );/*]]>*/</script>\n    <div>\n      <span class=\"chart-total-item-count\"><p data-bind=\"text: value\"><script data-this=\"{&quot;valueId&quot;:&quot;anon9fe2e9fee7e460dc5526bd04b999d19f&quot;,&quot;initialValue&quot;:&quot;35&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/\nreq(\n['observable', 'knockout'],\nfunction (O, ko) {\n  ko.applyBindings({\n      value: O.makeObservable(valueId, initialValue)\n    },\n    this\n  );\n});\n        /*]]>*/</script></p> entries total</span>\n      <span class=\"chart-sampling-warning\"><p data-bind=\"text: value\"><script data-this=\"{&quot;valueId&quot;:&quot;anona1846dacbb5ad70566e0b55d609ac4d5&quot;,&quot;initialValue&quot;:&quot;&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/\nreq(\n['observable', 'knockout'],\nfunction (O, ko) {\n  ko.applyBindings({\n      value: O.makeObservable(valueId, initialValue)\n    },\n    this\n  );\n});\n        /*]]>*/</script></p></span>\n      <div>\n      </div>\n    </div></div>\n            </div></div>\n      </div>\n    </div></div>"
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 10,
+      "time" : "Took: 5 seconds 36 milliseconds, at 2017-5-11 10:25"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "F3814CBED09C4A558F5A2DD7CBE705C6"
+    },
+    "cell_type" : "code",
+    "source" : "",
+    "outputs" : [ {
+      "metadata" : { },
+      "data" : {
+        "text/html" : ""
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 11,
+      "time" : "Took: 1 second 539 milliseconds, at 2017-5-10 17:43"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "795C8C7801D14A3F8AD3981FFE7BA01D"
+    },
+    "cell_type" : "code",
+    "source" : "",
+    "outputs" : [ {
+      "metadata" : { },
+      "data" : {
+        "text/html" : ""
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 12,
+      "time" : "Took: 1 second 165 milliseconds, at 2017-5-10 17:43"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : true,
+      "id" : "2D27D404D90344E1864B54942E9C3F70"
+    },
+    "cell_type" : "code",
+    "source" : "",
+    "outputs" : [ ]
+  } ],
+  "nbformat" : 4
+}
